@@ -1,5 +1,6 @@
 package com.hunglp.spring_security_overview.security;
 
+import com.hunglp.spring_security_overview.student.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,10 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/","index","/css/*","/js/*").permitAll()
                 .antMatchers("/api/**").hasRole(ApplicationUserRole.STUDENT.name())
+                .antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(ApplicationUserPermission.COURSE_WRITE.getPermission())
+                .antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(ApplicationUserPermission.COURSE_WRITE.getPermission())
+                .antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(ApplicationUserPermission.COURSE_WRITE.getPermission())
+                .antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ApplicationUserRole.ADMIN.name(), ApplicationUserRole.ADMINISTRATOR.name())
                 .anyRequest()
                 .authenticated().and().httpBasic();
     }
@@ -38,20 +43,40 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     @Bean
     protected UserDetailsService userDetailsService() {
+//        UserDetails hunglp = User.builder()
+//                .username("hunglp")
+//                .password(passwordEncoder.encode("hunglp9397"))
+//                .roles(ApplicationUserRole.STUDENT.name()).build();
+//
+//        UserDetails huyenbear = User.builder()
+//                .username("huyenbear")
+//                .password(passwordEncoder.encode("huyenbear123"))
+//                .roles(ApplicationUserRole.ADMIN.name()).build();
+//
+//        UserDetails administrator = User.builder()
+//                .username("administrator")
+//                .password(passwordEncoder.encode("administrator"))
+//                .roles(ApplicationUserRole.ADMIN.name()).build();
+
         UserDetails hunglp = User.builder()
                 .username("hunglp")
-                .password(passwordEncoder.encode("hunglp9397"))
-                .roles(ApplicationUserRole.STUDENT.name()).build();
+                .password(passwordEncoder.encode("hunglp"))
+                .authorities(ApplicationUserRole.STUDENT.getGrantedAuthories())
+                .build();
 
         UserDetails huyenbear = User.builder()
-                .username("huyenbear")
-                .password(passwordEncoder.encode("huyenbear123"))
-                .roles(ApplicationUserRole.ADMIN.name()).build();
+                .username("admin")
+                .password(passwordEncoder.encode("admin"))
+                .authorities(ApplicationUserRole.ADMIN.getGrantedAuthories())
+                .build();
 
         UserDetails administrator = User.builder()
                 .username("administrator")
                 .password(passwordEncoder.encode("administrator"))
-                .roles(ApplicationUserRole.ADMIN.name()).build();
+                .authorities(ApplicationUserRole.ADMINISTRATOR.getGrantedAuthories())
+                .build();
+
+
 
         return new InMemoryUserDetailsManager(hunglp, huyenbear,administrator);
     }
