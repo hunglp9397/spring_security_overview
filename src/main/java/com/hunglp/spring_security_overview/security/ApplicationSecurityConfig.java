@@ -1,5 +1,6 @@
 package com.hunglp.spring_security_overview.security;
 
+import com.hunglp.spring_security_overview.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import com.hunglp.spring_security_overview.student.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -31,6 +33,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
                 .authorizeRequests()
                 .antMatchers("/","index","/css/*","/js/*").permitAll()
                 .antMatchers("/api/**").hasRole(ApplicationUserRole.STUDENT.name())
@@ -63,19 +67,19 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         UserDetails hunglp = User.builder()
                 .username("hunglp")
                 .password(passwordEncoder.encode("hunglp"))
-                .authorities(ApplicationUserRole.STUDENT.getGrantedAuthories())
+                .authorities(ApplicationUserRole.STUDENT.getGrantedAuthorities())
                 .build();
 
         UserDetails huyenbear = User.builder()
                 .username("admin")
                 .password(passwordEncoder.encode("admin"))
-                .authorities(ApplicationUserRole.ADMIN.getGrantedAuthories())
+                .authorities(ApplicationUserRole.ADMIN.getGrantedAuthorities())
                 .build();
 
         UserDetails administrator = User.builder()
                 .username("administrator")
                 .password(passwordEncoder.encode("administrator"))
-                .authorities(ApplicationUserRole.ADMINISTRATOR.getGrantedAuthories())
+                .authorities(ApplicationUserRole.ADMINISTRATOR.getGrantedAuthorities())
                 .build();
 
 
